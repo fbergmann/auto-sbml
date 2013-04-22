@@ -112,7 +112,9 @@ DLL_EXPORT char* STD_CALL GetTempPath()
 		tempVar = "c:\\Windows\\Temp";
 	return STRDUP(tempVar);
 #else
-	return "/tmp";
+	char* path = (char*)malloc(sizeof(char)*5);
+	strcpy(path, "/tmp\0");
+	return path;
 #endif
 }
 
@@ -389,7 +391,9 @@ DLL_EXPORT void STD_CALL CallAuto()
 	try
 	{
 		int argc = 1;
-		char *argv[] = { "vsAuto" }	;
+		char *cmd = (char*)malloc(sizeof(char)*7); 
+		strncpy(cmd, "vsAuto\0", 7);
+		char *argv[] = { cmd }	;
 		CHDIR(GetTempPath());
 		LibAuto::AUTO_main(argc, argv);	
 		//delete[] argv;
