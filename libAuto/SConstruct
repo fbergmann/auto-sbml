@@ -1,0 +1,77 @@
+#
+# SBW Build script .. this script should build all C / C++ modules needed for SBW
+# author: Frank Bergmann fbergman@u.washington.edu
+#
+
+import glob
+import sys
+
+
+#
+# Fixing Preprocessor defines 
+#
+THREAD_LIB = 'pthread'
+FRAMEWORKS = []
+buildArchs = ''
+compileFlags = ''
+bzipLib = ''
+
+if sys.platform in ['win32']:
+	sbw_target = ' -DWIN32'
+elif sys.platform in ['darwin']:
+	sbw_target = ' -DDARWIN -DLINUX '
+	if ARGUMENTS.get('UNIVERSAL') == 'no':
+		# make sure we compile little or big endiannes correctly
+		if sys.byteorder in ['little']:
+			sbw_target  = sbw_target + " -D__LITTLE_ENDIAN__"
+		else:
+			sbw_target  = sbw_target + " -D__BIG_ENDIAN__"
+	else:
+		buildArchs = '  -arch i386 -arch ppc '
+
+else:
+	sbw_target = ' -DLINUX'
+
+#if sys.byteorder in ['little']:
+#	sbw_target  = sbw_target + " -D__LITTLE_ENDIAN__"
+#else:
+#	sbw_target  = sbw_target + " -D__BIG_ENDIAN__"
+
+if ARGUMENTS == {}:
+	print 'building SBW RELEASE'
+	compileFlags 	= compileFlags + '-D_GNU_SOURCE -g -Wall -O2 ' + sbw_target
+else:
+	print 'building SBW DEBUG'
+	compileFlags 	= compileFlags + '-D_GNU_SOURCE -g -Wall ' + sbw_target + ' -D_DEBUG'
+
+if ARGUMENTS.get("BZIP") == 'no':
+	print "BZ2: not linking against bzip"
+
+else:
+	print "BZ2: linking against bzip"
+	bzipLib = 'bz2'
+
+
+src					= Split( glob.glob( './*.c*'   ) ) + Split( glob.glob( './libf2c/*.c*'   ) )
+include 			= [ './', '../include', './libf2c' ]
+
+env    = Environment(
+			CC 	= 'g++',
+			CCFLAGS = compileFlags,
+			CPPPATH = include,
+			FRAMEWORKS = FRAMEWORKS
+		)
+
+env.Append( LINKFLAGS = buildArchs )
+env.Append( CCFLAGS = buildArchs )
+
+env.SharedLibrary (
+		target 	= 'LibAuto',
+		source 	= src
+		)
+
+
+env.Library (
+		target 	= 'LibAuto-static',
+		source 	= src
+		)
