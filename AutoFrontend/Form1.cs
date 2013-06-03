@@ -49,6 +49,8 @@ namespace AutoFrontend
 
             InitializeComponent();
 
+            Icon = Properties.Resources.ICON_Auto;
+
             _SelectForm = new FormSelectVariables();
 
             AllowDrop = true;

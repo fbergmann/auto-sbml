@@ -7,7 +7,7 @@
     <ProjectGuid>{68FB5031-08B2-4226-AFC5-5B9C2E038ADF}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ApplicationIcon>App.ico</ApplicationIcon>
+    <ApplicationIcon>ICON_Auto.ico</ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>AutoFrontend</AssemblyName>
@@ -110,6 +110,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ICON_Auto.ico" />
+    <None Include="Resources\ICON_Auto.ico" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <None Include="app.config" />
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs">
@@ -150,6 +156,11 @@
     </Compile>
     <Compile Include="Program.cs">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SBWModules\SBMLSupport.cs">
       <SubType>Code</SubType>
