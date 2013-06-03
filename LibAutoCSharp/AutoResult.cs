@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
+using System.Threading;
+
 namespace LibAutoCSharp
 {
     public class AutoResult
@@ -18,6 +20,9 @@ namespace LibAutoCSharp
 
         public AutoResult(string sFileName)
         {
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CreateSpecificCulture("en");
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            Thread.CurrentThread.CurrentCulture = culture;
             AllRuns = new AutoResultRunCollection();
             AllRuns.Add(new AutoResultRun()); 
             ReadFort7File(sFileName);

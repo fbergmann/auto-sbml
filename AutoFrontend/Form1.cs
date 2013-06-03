@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Forms;
 using System.Data;
 using System.IO;
@@ -16,6 +17,14 @@ using AutoFrontend.Forms;
 
 namespace AutoFrontend
 {
+
+    public class TagData
+    {
+        public IntTripple Tripple { get; set; }
+        public int Series { get; set; }
+        public string Label { get; set; }
+    }
+
     public delegate void VoidStringDelegate(string s);
 
     public delegate void VoidDelegate();
@@ -34,6 +43,10 @@ namespace AutoFrontend
 
         public Form1()
         {
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CreateSpecificCulture("en");
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            Thread.CurrentThread.CurrentCulture = culture;
+
             InitializeComponent();
 
             _SelectForm = new FormSelectVariables();
@@ -71,7 +84,7 @@ namespace AutoFrontend
 
                 if (tag != null)
                 {
-                    IntTripple tripple = tag as IntTripple;
+                    var tripple = (tag as TagData).Tripple;
                     if (tripple != null)
                     {
                         RunContinuationForTripple(tripple);
@@ -661,7 +674,7 @@ namespace AutoFrontend
             }
             this.Menu = this.mainMenu1;
             this.Name = "Form1";
-            this.Text = "Frontend for AUTO2000 (C# wrapped)";
+            this.Text = "Auto2000 C# ";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
@@ -1243,6 +1256,16 @@ namespace AutoFrontend
             }
         }
 
+        private void SetTitle(string fileName)
+        {
+            this.Text = "Auto2000 C# ";
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                this.Text += " - [" + Path.GetFileName(fileName) + "]";
+            }
+        }
+
+
         public void loadSBML(string sSBML)
         {
             if (this.InvokeRequired)
@@ -1291,6 +1314,8 @@ namespace AutoFrontend
 
                     txtSBML.Text = SBML;
                     txtJarnac.Text = Util.ConvertToJarnac(sSBML);
+
+                    SetTitle("SBML.xml");
                 }
                 catch (SBW.SBWException ex)
                 {
@@ -1301,7 +1326,7 @@ namespace AutoFrontend
 
         private void LoadFile(string sFileName)
         {
-            StreamReader oReader = new StreamReader(sFileName);
+            var oReader = new StreamReader(sFileName);
             string sSBML = oReader.ReadToEnd();
             oReader.Close();
 
@@ -1319,6 +1344,9 @@ namespace AutoFrontend
             ResetAuto();
 
             loadSBML(sSBML);
+
+            SetTitle(sFileName);
+
         }
 
         private string GetNthName(int i)
@@ -1473,7 +1501,7 @@ namespace AutoFrontend
                         double x = ((double[])series[0])[currentPos];
                         double y = ((double[])series[1 + i])[currentPos];
                         ZedGraph.TextObj text = new TextObj(UtilLib.ConvertIntTypeToShortString(tripple.Value2), x, y);
-                        text.Tag = tripple;
+                        text.Tag = new TagData { Series = 1 + i, Tripple = tripple, Label = GetNthName(i)};
 
                         graphControl1.ZedControl.GraphPane.GraphObjList.Add(text);
                     }

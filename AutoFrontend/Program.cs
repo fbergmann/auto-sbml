@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Windows.Forms;
 using SBW;
 namespace AutoFrontend
@@ -14,6 +15,11 @@ namespace AutoFrontend
 		[STAThread]
 		static void Main(string[] args) 
 		{
+
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CreateSpecificCulture("en");
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            Thread.CurrentThread.CurrentCulture = culture;
+
             //Application.SetCompatibleTextRenderingDefault(false); 
             Application.EnableVisualStyles();
 			Application.DoEvents();

@@ -352,9 +352,24 @@ namespace AutoFrontend.Controls
 				{
 					for (int i = 0; i < sender.GraphPane.CurveList.Count; i++)
 					{
-						if (sender.GraphPane.CurveList[i].Label.Text == sTag)
-							sender.GraphPane.CurveList[i].IsVisible = !sender.GraphPane.CurveList[i].IsVisible;
+                        if (sender.GraphPane.CurveList[i].Label.Text == sTag)
+                        {
+                            sender.GraphPane.CurveList[i].IsVisible = !sender.GraphPane.CurveList[i].IsVisible;
+                        }
 					}
+
+                    for (int i = 0; i < sender.GraphPane.GraphObjList.Count; i++)
+                    {
+                        GraphObj current = sender.GraphPane.GraphObjList[i];
+                        if (current.Tag is TagData)
+                        {
+                            var data = current.Tag as TagData;
+                            if (data.Label == sTag)
+                            {
+                                current.IsVisible = !current.IsVisible;
+                            }
+                        }
+                    }
 				}
 				
 

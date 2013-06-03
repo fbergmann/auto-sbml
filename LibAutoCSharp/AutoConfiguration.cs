@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace LibAutoCSharp
 {
@@ -95,7 +96,7 @@ namespace LibAutoCSharp
         /// <param name="numVariables"></param>
         /// <param name="maxNumSteps"></param>
         /// <param name="label"></param>
-        public AutoConfiguration(double startValue, double endvalue, bool direction, int numVariables, int maxNumSteps, int? label)
+        public AutoConfiguration(double startValue, double endvalue, bool direction, int numVariables, int maxNumSteps, int? label) : this()
         {
             _StartValue = startValue;
             _Endvalue = endvalue;
@@ -108,7 +109,9 @@ namespace LibAutoCSharp
 
         public AutoConfiguration()
 		{
-
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CreateSpecificCulture("en");
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            Thread.CurrentThread.CurrentCulture = culture;
 		}
 
 		public string GenerateConfigFile()

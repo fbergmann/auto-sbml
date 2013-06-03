@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 
 namespace LibAutoCSharp
@@ -161,6 +162,9 @@ namespace LibAutoCSharp
 
         public AutoInputConstants()
         {
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CreateSpecificCulture("en");
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            Thread.CurrentThread.CurrentCulture = culture;
             _ICP = new IntCollection();
             _THL = new IntDoublePairCollection();
             _THU = new IntDoublePairCollection();
