@@ -25,7 +25,7 @@ namespace AutoFrontend
 			Application.DoEvents();
 			
 
-			Form1 newForm1 = Form1.Instance;
+			MainForm newForm1 = MainForm.Instance;
 			object oBox = newForm1;
 
 			ModuleImplementation oImpl = new ModuleImplementation(

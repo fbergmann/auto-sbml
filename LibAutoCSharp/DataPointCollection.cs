@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
+using System.Text;
 
 namespace LibAutoCSharp
 {
@@ -67,5 +68,40 @@ namespace LibAutoCSharp
 			}
 		}
 		#endregion
+        public string GenerateCSV(string parameter, string[] variables, string separator = ", ")
+        {
+
+            var builder = new StringBuilder();
+            builder.Append(parameter);
+            builder.Append(separator);
+            for (int j = 0; j < variables.Length; j++)
+            {
+                builder.Append(variables[j]);
+                if (j +1 < variables.Length)
+                    builder.Append(separator);
+            }
+            builder.AppendLine();
+
+            for (int i = 0; i < Count; i++)
+            {
+                var current = this[i];
+                builder.Append(current.Par);
+                builder.Append(separator);
+                for (int j = 0; j < current.Variables.Length; j++)
+                {
+                    builder.Append(current.Variables[j]);
+                    if (j + 1 < current.Variables.Length)
+                        builder.Append(separator);
+                }
+                builder.AppendLine();
+            }
+
+            return builder.ToString();
+
+            throw new NotImplementedException();
+        }
+
+    
+
 	}
 }

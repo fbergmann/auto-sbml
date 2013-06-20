@@ -176,9 +176,9 @@ namespace AutoFrontend.Controls
                         Simulator.setValue(sParameterName, x);
 
                         //_oPopup.SetData(Simulator.simulateEx(0.0, 10.0, 100));
-                        double startTime = Form1.Instance.SetupControl.SimulationStartTime;
-                        double endTime = Form1.Instance.SetupControl.SimulationEndTime;
-                        int numPoints = (int)Form1.Instance.SetupControl.SimulationNumPoints;
+                        double startTime = MainForm.Instance.SetupControl.SimulationStartTime;
+                        double endTime = MainForm.Instance.SetupControl.SimulationEndTime;
+                        int numPoints = (int)MainForm.Instance.SetupControl.SimulationNumPoints;
                         _oPopup.SetData(Simulator.simulateEx(startTime, endTime, numPoints));
 
                         _oPopup.Location = MousePosition;
@@ -318,7 +318,7 @@ namespace AutoFrontend.Controls
 
         public static RoadRunner Simulator
 		{
-			get {	return Form1.Simulator; }
+			get {	return MainForm.Simulator; }
 		}
 
 		private void OnClick(object sender, MouseEventArgs e)

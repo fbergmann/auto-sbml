@@ -9,9 +9,9 @@ namespace LibAutoCSharp
     public class AutoResult
     {
 
-        static string Fort7FileName = UtilLib.GetTempPath() + "/" + "fort.7";
-        static string Fort8FileName = UtilLib.GetTempPath() + "/" + "fort.8";
-        static string Fort9FileName = UtilLib.GetTempPath() + "/" + "fort.9";
+        static string Fort7FileName = Path.Combine( UtilLib.GetTempPath() ,"fort.7");
+        static string Fort8FileName = Path.Combine( UtilLib.GetTempPath() ,"fort.8");
+        static string Fort9FileName = Path.Combine( UtilLib.GetTempPath() ,"fort.9");
 
         public AutoResult()
             : this(Fort7FileName)
@@ -155,7 +155,7 @@ namespace LibAutoCSharp
                     double dL2Norm = UtilLib.ConvertToDouble(sColumns[5], double.NaN);
 
                     NumVariables = sColumns.Length - 6;
-                    double[] dVariables = new double[NumVariables];
+                    var dVariables = new double[NumVariables];
                     for (int i = 0; i < NumVariables; i++)
                     {
                         dVariables[i] = UtilLib.ConvertToDouble(sColumns[6 + i], double.NaN);
@@ -181,20 +181,10 @@ namespace LibAutoCSharp
         }
 
 
-        private AutoResultRunCollection _AllRuns;
-        public AutoResultRunCollection AllRuns
-        {
-            get { return _AllRuns; }
-            set { _AllRuns = value; }
-        }
+        public AutoResultRunCollection AllRuns { get; set; }
 
 
-        private AutoResultRun _CurrentRun;
-        public AutoResultRun CurrentRun
-        {
-            get { return _CurrentRun; }
-            set { _CurrentRun = value; }
-        }
+        public AutoResultRun CurrentRun { get; set; }
 
         public ArrayList DataSeries
         {

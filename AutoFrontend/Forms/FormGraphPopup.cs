@@ -51,7 +51,7 @@ namespace AutoFrontend.Forms
 
         public static RoadRunner Simulator
 		{
-			get {	return Form1.Simulator; }
+			get {	return MainForm.Simulator; }
 		}
 		
 		public string Label
@@ -246,7 +246,7 @@ namespace AutoFrontend.Forms
 				PlotData(_Data);
 			}
 
-            Form1.Instance.Focus();
+            MainForm.Instance.Focus();
 		}
 	}
 }

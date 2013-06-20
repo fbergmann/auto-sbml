@@ -205,7 +205,7 @@ namespace AutoFrontend.Forms
 		{
 			get
 			{
-				return AutoFrontend.Form1.Simulator;
+				return AutoFrontend.MainForm.Simulator;
 			}
 		}
 

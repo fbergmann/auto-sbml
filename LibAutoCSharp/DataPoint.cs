@@ -1,56 +1,28 @@
 using System;
-using System.Collections;
-using System.Collections.Specialized;
-using System.IO;
 
 namespace LibAutoCSharp
 {
     
 	public class DataPoint
 	{
-		private int _Point;
-		public int Point
-		{
-			get { return _Point; }
-			set { _Point = value; }
-		}
+	    public int Point { get; set; }
 
-		private int _Type;
-		public int Type
-		{
-			get { return _Type; }
-			set { _Type = value; }
-		}
+	    public int Type { get; set; }
 
-		private int _Label;
-		public int Label
-		{
-			get { return _Label; }
-			set { _Label = value; }
-		}
+	    public int Label { get; set; }
 
-		private double _Par;
-		public double Par
-		{
-			get { return _Par; }
-			set { _Par = value; }
-		}
+	    public double Par { get; set; }
 
 
-		private double[] _Variables;
-		public double[] Variables
-		{
-			get { return _Variables; }
-			set { _Variables = value; }
-		}
+	    public double[] Variables { get; set; }
 
-		public int NumVariables
+	    public int NumVariables
 		{
 			get
 			{
-				if (_Variables == null)
+				if (Variables == null)
 					return 0;
-				else return _Variables.Length;
+				else return Variables.Length;
 			}
 		}
 
@@ -65,11 +37,11 @@ namespace LibAutoCSharp
 		/// <param name="var2"></param>
 		public DataPoint(int point, int type, int label, double par, double[] variables)
 		{
-			_Point = point;
-			_Type = type;
-			_Label = label;
-			_Par = par;
-			_Variables = variables;
+			Point = point;
+			Type = type;
+			Label = label;
+			Par = par;
+			Variables = variables;
 		}
 
 

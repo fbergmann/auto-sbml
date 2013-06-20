@@ -602,7 +602,7 @@ namespace AutoFrontend.Controls
 
 		private void cmdRun_Click(object sender, System.EventArgs e)
 		{						
-			Form1.Instance.RunAuto();			
+			MainForm.Instance.RunAuto();			
 		}
 
 		internal void DoCalculateSteadyState()
@@ -670,20 +670,20 @@ namespace AutoFrontend.Controls
 
 		private void cmdSimSendToSimDriver_Click(object sender, System.EventArgs e)
 		{
-			Util.SentToSimulator(Form1.SBML);
+			Util.SentToSimulator(MainForm.SBML);
 		}
 
 		private void cmdLoadSBML_Click(object sender, System.EventArgs e)
 		{
 			this._oPopup.Location = grpSimulation.PointToScreen( new Point (0,0));
-			Form1.Instance.OpenSBML();
+			MainForm.Instance.OpenSBML();
 		}
 
         private RoadRunner Simulator
 		{
 			get
 			{
-				return AutoFrontend.Form1.Simulator;
+				return AutoFrontend.MainForm.Simulator;
 			}
 		}
 
