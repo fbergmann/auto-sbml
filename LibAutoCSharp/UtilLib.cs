@@ -11,15 +11,15 @@ namespace LibAutoCSharp
 	{
 		public static string[] Split(string source, params char[] seperators)
 		{
-			string[] oRaw = source.Split(seperators);
-			ArrayList oList = new ArrayList();
+			var oRaw = source.Split(seperators);
+			var oList = new ArrayList();
 			for (int i = 0; i < oRaw.Length; i++)
 			{
 				if (oRaw[i] != null && oRaw[i].Trim().Length > 0)
 					oList.Add(oRaw[i]);
 			}
 
-			string[] oResult = new string[oList.Count];
+			var oResult = new string[oList.Count];
 			oList.CopyTo(oResult);
 			return oResult;
 

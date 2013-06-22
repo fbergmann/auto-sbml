@@ -1,79 +1,279 @@
 using System;
-using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
+using System.Threading;
 using System.Windows.Forms;
+using AutoFrontend.Forms;
+using LibAutoCSharp;
 using LibRoadRunner;
 
 namespace AutoFrontend.Controls
 {
-	/// <summary>
-	/// Summary description for SetupControl.
-	/// </summary>
-	public class SetupControl : System.Windows.Forms.UserControl
-	{
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.GroupBox groupBox2;
-		private System.Windows.Forms.Panel panel1;
-		private System.Windows.Forms.Panel panel2;
-		private System.Windows.Forms.Panel panel3;
-		private System.Windows.Forms.Panel panel4;
-		private System.Windows.Forms.TextBox txtStart;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.TextBox txtEnd;
-		private System.Windows.Forms.ComboBox cmbParameters;
-		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.GroupBox groupBox4;
-		private System.Windows.Forms.RadioButton radForward;
-		private System.Windows.Forms.RadioButton radBackward;
-		private System.Windows.Forms.Button cmdRun;
-		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.TextBox txtSteadyResult;
-		private System.Windows.Forms.Button cmdSteadyState;
-		private System.Windows.Forms.CheckBox chkAutoSteadyState;
-		private System.Windows.Forms.Label label5;
-		private System.Windows.Forms.TextBox txtSimTimeEnd;
-		private System.Windows.Forms.Label label6;
-		private System.Windows.Forms.TextBox txtSimTimeStart;
-		private System.Windows.Forms.Label label7;
-		private System.Windows.Forms.TextBox txtSimNumPoints;
-		private System.Windows.Forms.Button cmdSimSimulate;
-		private System.Windows.Forms.Button cmdSimReset;
-		private System.Windows.Forms.Button cmdSimSendToSimDriver;
-		private System.Windows.Forms.Button cmdLoadSBML;
-		private System.Windows.Forms.GroupBox grpSimulation;
+    /// <summary>
+    ///     Summary description for SetupControl.
+    /// </summary>
+    public class SetupControl : UserControl
+    {
+        private readonly FormGraphPopup _oPopup = new FormGraphPopup();
+        private AutoInputConstants _CurrentConfig = AutoInputConstants.DefaultConstants;
+        private CheckBox chkAutoSteadyState;
         private CheckBox chkReload;
-        private Label label8;
-        private TextBox txtMaxSteps;
-        private Label label9;
-        private TextBox txtNumBifurcationsToTrack;
-        private ToolTip toolTip1;
+        private ComboBox cmbParameters;
+        private Button cmdLoadSBML;
+        private Button cmdRun;
+        private Button cmdSimReset;
+        private Button cmdSimSendToSimDriver;
+        private Button cmdSimSimulate;
+        private Button cmdSteadyState;
         private IContainer components;
+        private GroupBox groupBox1;
+        private GroupBox groupBox2;
+        private GroupBox groupBox4;
+        private GroupBox grpSimulation;
+        private Label label1;
+        private Label label2;
+        private Label label3;
+        private Label label4;
+        private Label label5;
+        private Label label6;
+        private Label label7;
+        private Label label8;
+        private Label label9;
+        private Panel panel1;
+        private Panel panel2;
+        private Panel panel3;
+        private Panel panel4;
+        private RadioButton radBackward;
+        private RadioButton radForward;
+        private ToolTip toolTip1;
+        private TextBox txtEnd;
+        private TextBox txtMaxSteps;
+        private TextBox txtNumBifurcationsToTrack;
+        private TextBox txtSimNumPoints;
+        private TextBox txtSimTimeEnd;
+        private TextBox txtSimTimeStart;
+        private TextBox txtStart;
+        private TextBox txtSteadyResult;
 
-		public SetupControl()
-		{
-			// This call is required by the Windows.Forms Form Designer.
-			InitializeComponent();
-
-			// TODO: Add any initialization after the InitializeComponent call
-			this._oPopup.StartPosition = FormStartPosition.Manual;
-			this._oPopup.Location = grpSimulation.PointToScreen( new Point (0,0));
-
-
-            this.txtEnd.TextChanged += new EventHandler(UpdateConfig);
-            this.txtMaxSteps.TextChanged +=new EventHandler(UpdateConfig);
-            this.txtNumBifurcationsToTrack.TextChanged += new EventHandler(UpdateConfig);
-            this.txtStart.TextChanged += new EventHandler(UpdateConfig);
-            this.radBackward.CheckedChanged += new EventHandler(UpdateConfig);
-            this.radForward.CheckedChanged+=new EventHandler(UpdateConfig);
-		}
-
-
-        void UpdateConfig(object sender, EventArgs e)
+        public SetupControl()
         {
+            // This call is required by the Windows.Forms Form Designer.
+            InitializeComponent();
 
+            // TODO: Add any initialization after the InitializeComponent call
+            _oPopup.StartPosition = FormStartPosition.Manual;
+            _oPopup.Location = grpSimulation.PointToScreen(new Point(0, 0));
+
+
+            txtEnd.TextChanged += UpdateConfig;
+            txtMaxSteps.TextChanged += UpdateConfig;
+            txtNumBifurcationsToTrack.TextChanged += UpdateConfig;
+            txtStart.TextChanged += UpdateConfig;
+            radBackward.CheckedChanged += UpdateConfig;
+            radForward.CheckedChanged += UpdateConfig;
+        }
+
+
+        private RoadRunner Simulator
+        {
+            get { return MainForm.Simulator; }
+        }
+
+
+        public bool CalculateSteadyState
+        {
+            get { return chkAutoSteadyState.Checked; }
+            set { chkAutoSteadyState.Checked = value; }
+        }
+
+        public double StartValue
+        {
+            get { return Util.ConvertToDouble(txtStart.Text, 0.01); }
+            set { txtStart.Text = value.ToString(); }
+        }
+
+        public int MaxBifurcations
+        {
+            get { return Util.ConvertToInt(txtNumBifurcationsToTrack.Text, -1); }
+            set { txtNumBifurcationsToTrack.Text = value.ToString(); }
+        }
+
+
+        public int MaxSteps
+        {
+            get { return Util.ConvertToInt(txtMaxSteps.Text, 1000); }
+            set { txtMaxSteps.Text = value.ToString(); }
+        }
+
+        public double EndValue
+        {
+            get { return Util.ConvertToDouble(txtEnd.Text, 10.0); }
+            set { txtEnd.Text = value.ToString(); }
+        }
+
+        public string Parameter
+        {
+            get { return cmbParameters.Text; }
+            set { cmbParameters.Text = value; }
+        }
+
+
+        public double SimulationStartTime
+        {
+            get { return Util.ConvertToDouble(txtSimTimeStart.Text, 0.0); }
+            set { txtSimTimeStart.Text = value.ToString(); }
+        }
+
+        public double SimulationEndTime
+        {
+            get { return Util.ConvertToDouble(txtSimTimeEnd.Text, 10.0); }
+            set { txtSimTimeEnd.Text = value.ToString(); }
+        }
+
+        public double SimulationNumPoints
+        {
+            get { return Util.ConvertToDouble(txtSimNumPoints.Text, 100); }
+            set { txtSimNumPoints.Text = value.ToString(); }
+        }
+
+        public bool DirectionPositive
+        {
+            get { return radForward.Checked; }
+            set
+            {
+                if (value)
+                    radForward.Checked = true;
+                else
+                    radBackward.Checked = true;
+            }
+        }
+
+        public bool ReloadAfterRun
+        {
+            get { return chkReload.Checked; }
+        }
+
+        public object[] Parameters
+        {
+            get
+            {
+                var oResult = new object[cmbParameters.Items.Count];
+                cmbParameters.Items.CopyTo(oResult, 0);
+                return oResult;
+            }
+            set
+            {
+                cmbParameters.Items.Clear();
+                cmbParameters.Items.AddRange(value);
+                if (cmbParameters.Items.Count > 0)
+                {
+                    cmbParameters.SelectedIndex = 0;
+                    cmbParameters.Enabled = true;
+                }
+            }
+        }
+
+        public bool ParameterAvailable
+        {
+            get { return cmbParameters.Enabled; }
+            set
+            {
+                cmbParameters.Enabled = value;
+                if (!cmbParameters.Enabled)
+                {
+                    cmbParameters.Items.Clear();
+                }
+            }
+        }
+
+
+        public int Label { get; set; }
+
+        public bool RunContinuation { get; set; }
+
+
+        public AutoInputConstants CurrentConfig
+        {
+            get { return _CurrentConfig; }
+            set { _CurrentConfig = value; }
+        }
+
+        public string Configuration
+        {
+            get
+            {
+                return CurrentConfig.ToInputString();
+
+                //int nDim = GetNumFloating();
+                //if (RunContinuation)
+                //    return new LibAutoCSharp.AutoConfiguration(
+                //    Util.ConvertToDouble(txtStart.Text, 0.01),
+                //    Util.ConvertToDouble(txtEnd.Text, 10.0),
+                //    radForward.Checked, nDim, Util.ConvertToInt(txtMaxSteps.Text, 1000), Label).GenerateConfigFile();
+                //else
+
+                //return new LibAutoCSharp.AutoConfiguration(
+                //    Util.ConvertToDouble(txtStart.Text, 0.01),
+                //    Util.ConvertToDouble(txtEnd.Text, 10.0), 
+                //    radForward.Checked, nDim, Util.ConvertToInt(txtMaxSteps.Text, 1000)).GenerateConfigFile();
+            }
+        }
+
+        internal void CalculateSteadyStateIfNecessary()
+        {
+            if (CalculateSteadyState)
+                DoCalculateSteadyState();
+        }
+
+        public bool Contains(string sId)
+        {
+            return cmbParameters.Items.Contains(sId);
+        }
+
+        /// <summary>
+        ///     Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
+
+        internal void DoCalculateSteadyState()
+        {
+            try
+            {
+                txtSteadyResult.Text = Simulator.steadyState().ToString();
+            }
+            catch
+            {
+                txtSteadyResult.Text = "(could not compute)";
+            }
+        }
+
+        private int GetNumFloating()
+        {
+            int nDim;
+            try
+            {
+                if (!Simulator.modelLoaded) return 2;
+                nDim = Simulator.getNumberOfFloatingSpecies();
+            }
+            catch (Exception)
+            {
+                nDim = 2;
+            }
+            return nDim;
+        }
+
+        private void UpdateConfig(object sender, EventArgs e)
+        {
             CurrentConfig.NDIM = GetNumFloating();
             CurrentConfig.MXBF = Util.ConvertToInt(txtNumBifurcationsToTrack.Text, -1);
             CurrentConfig.RL0 = Util.ConvertToDouble(txtStart.Text, 0.01);
@@ -86,7 +286,7 @@ namespace AutoFrontend.Controls
             }
             else
             {
-                CurrentConfig.DS = Math.Abs(CurrentConfig.DS) * -1.0;
+                CurrentConfig.DS = Math.Abs(CurrentConfig.DS)*-1.0;
             }
 
             //int nDim = GetNumFloating();
@@ -101,32 +301,68 @@ namespace AutoFrontend.Controls
             //    Util.ConvertToDouble(txtStart.Text, 0.01),
             //    Util.ConvertToDouble(txtEnd.Text, 10.0), 
             //    radForward.Checked, nDim, Util.ConvertToInt(txtMaxSteps.Text, 1000)).GenerateConfigFile();
-
-
         }
 
-		/// <summary> 
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if(components != null)
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
+        private void cmdLoadSBML_Click(object sender, EventArgs e)
+        {
+            _oPopup.Location = grpSimulation.PointToScreen(new Point(0, 0));
+            MainForm.Instance.OpenSBML();
+        }
 
-		#region Component Designer generated code
-		/// <summary> 
-		/// Required method for Designer support - do not modify 
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        private void cmdRun_Click(object sender, EventArgs e)
+        {
+            MainForm.Instance.RunAuto();
+        }
+
+        private void cmdSimReset_Click(object sender, EventArgs e)
+        {
+            Simulator.reset();
+        }
+
+        private void cmdSimSendToSimDriver_Click(object sender, EventArgs e)
+        {
+            Util.SentToSimulator(MainForm.SBML);
+        }
+
+        private void cmdSimSimulate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                _oPopup.Label = "Simulation";
+                _oPopup.SetData(Simulator.simulateEx(
+                    Util.ConvertToDouble(txtSimTimeStart.Text, 0.0),
+                    Util.ConvertToDouble(txtSimTimeEnd.Text, 10.0),
+                    Util.ConvertToInt(txtSimNumPoints.Text, 1000)));
+
+                _oPopup.Location = grpSimulation.PointToScreen(new Point(0, 0));
+                Application.DoEvents();
+                _oPopup.Show();
+                _oPopup.Refresh();
+
+                Application.DoEvents();
+
+                Thread.Sleep(2000);
+
+                _oPopup.Hide();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void cmdSteadyState_Click(object sender, EventArgs e)
+        {
+            DoCalculateSteadyState();
+        }
+
+        #region Component Designer generated code
+
+        /// <summary>
+        ///     Required method for Designer support - do not modify
+        ///     the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -210,15 +446,18 @@ namespace AutoFrontend.Controls
             // 
             // txtMaxSteps
             // 
-            this.txtMaxSteps.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtMaxSteps.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtMaxSteps.Location = new System.Drawing.Point(96, 99);
             this.txtMaxSteps.Name = "txtMaxSteps";
             this.txtMaxSteps.Size = new System.Drawing.Size(100, 20);
             this.txtMaxSteps.TabIndex = 6;
             this.txtMaxSteps.Text = "1000";
             this.txtMaxSteps.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.toolTip1.SetToolTip(this.txtMaxSteps, "Maximum Number of Steps to Perform, increase this if End Value is never reached");
+            this.toolTip1.SetToolTip(this.txtMaxSteps,
+                                     "Maximum Number of Steps to Perform, increase this if End Value is never reached");
             // 
             // chkReload
             // 
@@ -244,8 +483,10 @@ namespace AutoFrontend.Controls
             // 
             // cmdRun
             // 
-            this.cmdRun.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdRun.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdRun.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmdRun.Location = new System.Drawing.Point(104, 204);
             this.cmdRun.Name = "cmdRun";
@@ -256,8 +497,10 @@ namespace AutoFrontend.Controls
             // 
             // groupBox4
             // 
-            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.radBackward);
             this.groupBox4.Controls.Add(this.radForward);
             this.groupBox4.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
@@ -298,8 +541,10 @@ namespace AutoFrontend.Controls
             // 
             // cmbParameters
             // 
-            this.cmbParameters.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbParameters.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbParameters.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbParameters.Enabled = false;
             this.cmbParameters.Location = new System.Drawing.Point(96, 72);
@@ -318,8 +563,10 @@ namespace AutoFrontend.Controls
             // 
             // txtEnd
             // 
-            this.txtEnd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtEnd.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtEnd.Location = new System.Drawing.Point(96, 48);
             this.txtEnd.Name = "txtEnd";
             this.txtEnd.Size = new System.Drawing.Size(100, 20);
@@ -338,8 +585,10 @@ namespace AutoFrontend.Controls
             // 
             // txtStart
             // 
-            this.txtStart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtStart.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtStart.Location = new System.Drawing.Point(96, 24);
             this.txtStart.Name = "txtStart";
             this.txtStart.Size = new System.Drawing.Size(100, 20);
@@ -365,8 +614,10 @@ namespace AutoFrontend.Controls
             // 
             // chkAutoSteadyState
             // 
-            this.chkAutoSteadyState.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkAutoSteadyState.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.chkAutoSteadyState.Checked = true;
             this.chkAutoSteadyState.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAutoSteadyState.FlatStyle = System.Windows.Forms.FlatStyle.System;
@@ -378,8 +629,10 @@ namespace AutoFrontend.Controls
             // 
             // cmdSteadyState
             // 
-            this.cmdSteadyState.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdSteadyState.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdSteadyState.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmdSteadyState.Location = new System.Drawing.Point(8, 72);
             this.cmdSteadyState.Name = "cmdSteadyState";
@@ -390,8 +643,10 @@ namespace AutoFrontend.Controls
             // 
             // txtSteadyResult
             // 
-            this.txtSteadyResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSteadyResult.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSteadyResult.Location = new System.Drawing.Point(8, 48);
             this.txtSteadyResult.Name = "txtSteadyResult";
             this.txtSteadyResult.Size = new System.Drawing.Size(192, 20);
@@ -401,8 +656,10 @@ namespace AutoFrontend.Controls
             // 
             // label4
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.Location = new System.Drawing.Point(8, 24);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(192, 23);
@@ -431,8 +688,10 @@ namespace AutoFrontend.Controls
             // 
             // cmdSimSendToSimDriver
             // 
-            this.cmdSimSendToSimDriver.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdSimSendToSimDriver.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdSimSendToSimDriver.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmdSimSendToSimDriver.Location = new System.Drawing.Point(8, 136);
             this.cmdSimSendToSimDriver.Name = "cmdSimSendToSimDriver";
@@ -443,8 +702,10 @@ namespace AutoFrontend.Controls
             // 
             // cmdSimReset
             // 
-            this.cmdSimReset.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdSimReset.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdSimReset.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmdSimReset.Location = new System.Drawing.Point(124, 104);
             this.cmdSimReset.Name = "cmdSimReset";
@@ -473,8 +734,10 @@ namespace AutoFrontend.Controls
             // 
             // txtSimNumPoints
             // 
-            this.txtSimNumPoints.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSimNumPoints.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSimNumPoints.Location = new System.Drawing.Point(96, 72);
             this.txtSimNumPoints.Name = "txtSimNumPoints";
             this.txtSimNumPoints.Size = new System.Drawing.Size(100, 20);
@@ -492,8 +755,10 @@ namespace AutoFrontend.Controls
             // 
             // txtSimTimeEnd
             // 
-            this.txtSimTimeEnd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSimTimeEnd.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSimTimeEnd.Location = new System.Drawing.Point(96, 48);
             this.txtSimTimeEnd.Name = "txtSimTimeEnd";
             this.txtSimTimeEnd.Size = new System.Drawing.Size(100, 20);
@@ -511,8 +776,10 @@ namespace AutoFrontend.Controls
             // 
             // txtSimTimeStart
             // 
-            this.txtSimTimeStart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSimTimeStart.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSimTimeStart.Location = new System.Drawing.Point(96, 24);
             this.txtSimTimeStart.Name = "txtSimTimeStart";
             this.txtSimTimeStart.Size = new System.Drawing.Size(100, 20);
@@ -569,15 +836,18 @@ namespace AutoFrontend.Controls
             // 
             // txtNumBifurcationsToTrack
             // 
-            this.txtNumBifurcationsToTrack.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtNumBifurcationsToTrack.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNumBifurcationsToTrack.Location = new System.Drawing.Point(96, 122);
             this.txtNumBifurcationsToTrack.Name = "txtNumBifurcationsToTrack";
             this.txtNumBifurcationsToTrack.Size = new System.Drawing.Size(100, 20);
             this.txtNumBifurcationsToTrack.TabIndex = 7;
             this.txtNumBifurcationsToTrack.Text = "-1";
             this.txtNumBifurcationsToTrack.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.toolTip1.SetToolTip(this.txtNumBifurcationsToTrack, "Maximum Number of Bifurcations to follow, by default follow one.");
+            this.toolTip1.SetToolTip(this.txtNumBifurcationsToTrack,
+                                     "Maximum Number of Bifurcations to follow, by default follow one.");
             // 
             // SetupControl
             // 
@@ -596,293 +866,8 @@ namespace AutoFrontend.Controls
             this.panel3.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
-
-		}
-		#endregion
-
-		private void cmdRun_Click(object sender, System.EventArgs e)
-		{						
-			MainForm.Instance.RunAuto();			
-		}
-
-		internal void DoCalculateSteadyState()
-		{
-			try
-			{
-				txtSteadyResult.Text = Simulator.steadyState().ToString();
-			}
-			catch 
-			{
-				txtSteadyResult.Text = "(could not compute)";
-			}
-
-		}
-
-		internal void CalculateSteadyStateIfNecessary()
-		{
-			if (CalculateSteadyState)
-				DoCalculateSteadyState();
-		}
-
-		private void cmdSteadyState_Click(object sender, System.EventArgs e)
-		{
-			DoCalculateSteadyState();
-		}
-
-
-		AutoFrontend.Forms.FormGraphPopup _oPopup = new AutoFrontend.Forms.FormGraphPopup();
-
-		private void cmdSimSimulate_Click(object sender, System.EventArgs e)
-		{
-			try
-			{
-
-				this._oPopup.Label = "Simulation";
-				this._oPopup.SetData(Simulator.simulateEx(
-					Util.ConvertToDouble(txtSimTimeStart.Text, 0.0),
-					Util.ConvertToDouble(txtSimTimeEnd.Text, 10.0),
-					Util.ConvertToInt(txtSimNumPoints.Text, 1000)));
-
-				this._oPopup.Location = grpSimulation.PointToScreen( new Point (0,0));
-				Application.DoEvents();				
-				this._oPopup.Show();
-				this._oPopup.Refresh();
-
-				Application.DoEvents();
-
-				System.Threading.Thread.Sleep(2000);
-
-				this._oPopup.Hide();
-
-				
-			}
-			catch (Exception)
-			{
-                
-			}
-		
-		}
-
-		private void cmdSimReset_Click(object sender, System.EventArgs e)
-		{
-			Simulator.reset();		
-		}
-
-		private void cmdSimSendToSimDriver_Click(object sender, System.EventArgs e)
-		{
-			Util.SentToSimulator(MainForm.SBML);
-		}
-
-		private void cmdLoadSBML_Click(object sender, System.EventArgs e)
-		{
-			this._oPopup.Location = grpSimulation.PointToScreen( new Point (0,0));
-			MainForm.Instance.OpenSBML();
-		}
-
-        private RoadRunner Simulator
-		{
-			get
-			{
-				return AutoFrontend.MainForm.Simulator;
-			}
-		}
-
-
-		
-		public bool CalculateSteadyState
-		{
-			get {	return chkAutoSteadyState.Checked; }
-			set { chkAutoSteadyState.Checked = value;	}
-		}
-		
-		public double StartValue
-		{
-			get {	return Util.ConvertToDouble(txtStart.Text, 0.01); }
-			set { txtStart.Text = value.ToString();	}
-		}
-
-        public int MaxBifurcations
-        {
-            get
-            {
-                return Util.ConvertToInt(txtNumBifurcationsToTrack.Text, -1);
-            }
-            set
-            {
-                txtNumBifurcationsToTrack.Text = value.ToString();
-            }
         }
 
-
-
-        public int MaxSteps
-        {
-            get
-            {
-                return Util.ConvertToInt(txtMaxSteps.Text, 1000);
-            }
-            set
-            {
-                txtMaxSteps.Text = value.ToString();
-            }
-        }
-
-		public double EndValue
-		{
-			get {	return Util.ConvertToDouble(txtEnd.Text, 10.0); }
-			set { txtEnd.Text = value.ToString();	}
-		}
-
-		public string Parameter
-		{
-			get
-			{
-				return cmbParameters.Text;
-			}
-            set
-            {
-                cmbParameters.Text = value;
-            }
-		}
-
-		
-		public double SimulationStartTime
-		{
-			get {	return Util.ConvertToDouble(txtSimTimeStart.Text, 0.0); }
-			set { txtSimTimeStart.Text = value.ToString();	}
-		}
-
-		public double SimulationEndTime
-		{
-			get {	return Util.ConvertToDouble(txtSimTimeEnd.Text, 10.0); }
-			set { txtSimTimeEnd.Text = value.ToString();	}
-		}
-
-		public double SimulationNumPoints
-		{
-			get {	return Util.ConvertToDouble(txtSimNumPoints.Text, 100); }
-			set { txtSimNumPoints.Text = value.ToString();	}
-		}
-
-		public bool DirectionPositive
-		{
-			get
-			{
-				return radForward.Checked;
-			}
-            set
-            {
-                if (value)
-                    radForward.Checked = true;
-                else
-                    radBackward.Checked = true;
-            }
-		}
-
-        public bool ReloadAfterRun
-        {
-            get
-            {
-                return chkReload.Checked;
-            }
-        }
-        public bool Contains(string sId)
-        {
-            return cmbParameters.Items.Contains(sId);
-        }
-
-		public object[] Parameters
-		{
-			get
-			{
-				object[] oResult = new object[cmbParameters.Items.Count];
-				cmbParameters.Items.CopyTo(oResult, 0);
-				return oResult;
-			}
-			set
-			{
-				cmbParameters.Items.Clear();
-				cmbParameters.Items.AddRange(value);
-				if (cmbParameters.Items.Count > 0)
-				{
-					cmbParameters.SelectedIndex = 0;
-					cmbParameters.Enabled = true;
-				}
-			}
-		}
-
-		public bool ParameterAvailable
-		{
-			get { return cmbParameters.Enabled;}
-			set
-			{
-				cmbParameters.Enabled = value;
-				if (!cmbParameters.Enabled)
-				{
-					cmbParameters.Items.Clear();
-				}
-			}
-		}
-
-
-        private int _Label;
-        public int Label
-        {
-            get { return _Label; }
-            set { _Label = value; }
-        }
-
-        private bool _RunContinuation = false;
-        public bool RunContinuation
-        {
-            get { return _RunContinuation; }
-            set { _RunContinuation = value; }
-        }
-
-
-        private int GetNumFloating()
-        {
-            int nDim;
-            try
-            {
-                if (!Simulator.modelLoaded) return 2;
-                nDim = Simulator.getNumberOfFloatingSpecies();
-            }
-            catch (Exception)
-            {
-                nDim = 2;
-            }
-            return nDim;
-        }
-
-        private LibAutoCSharp.AutoInputConstants _CurrentConfig = LibAutoCSharp.AutoInputConstants.DefaultConstants;
-        public LibAutoCSharp.AutoInputConstants CurrentConfig
-        {
-            get { return _CurrentConfig; }
-            set { _CurrentConfig = value; }
-        }
-
-        public string Configuration
-		{
-			get
-			{
-
-                return CurrentConfig.ToInputString();
-
-                //int nDim = GetNumFloating();
-                //if (RunContinuation)
-                //    return new LibAutoCSharp.AutoConfiguration(
-                //    Util.ConvertToDouble(txtStart.Text, 0.01),
-                //    Util.ConvertToDouble(txtEnd.Text, 10.0),
-                //    radForward.Checked, nDim, Util.ConvertToInt(txtMaxSteps.Text, 1000), Label).GenerateConfigFile();
-                //else
-
-                //return new LibAutoCSharp.AutoConfiguration(
-                //    Util.ConvertToDouble(txtStart.Text, 0.01),
-                //    Util.ConvertToDouble(txtEnd.Text, 10.0), 
-                //    radForward.Checked, nDim, Util.ConvertToInt(txtMaxSteps.Text, 1000)).GenerateConfigFile();
-			}
-
-		}
-	}
+        #endregion
+    }
 }

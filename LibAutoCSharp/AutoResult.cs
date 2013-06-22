@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
@@ -186,7 +187,7 @@ namespace LibAutoCSharp
 
         public AutoResultRun CurrentRun { get; set; }
 
-        public ArrayList DataSeries
+        public List<double[]> DataSeries
         {
             get
             {

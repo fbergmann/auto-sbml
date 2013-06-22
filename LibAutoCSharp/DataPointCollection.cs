@@ -80,12 +80,14 @@ namespace LibAutoCSharp
                 if (j +1 < variables.Length)
                     builder.Append(separator);
             }
+            builder.Append(separator);
+            builder.Append("type");
             builder.AppendLine();
 
             for (int i = 0; i < Count; i++)
             {
                 var current = this[i];
-                builder.Append(current.Par);
+                builder.Append(current.Par);                
                 builder.Append(separator);
                 for (int j = 0; j < current.Variables.Length; j++)
                 {
@@ -93,6 +95,15 @@ namespace LibAutoCSharp
                     if (j + 1 < current.Variables.Length)
                         builder.Append(separator);
                 }
+                builder.Append(separator);
+                if (current.Type == 1)
+                    builder.Append("BP");
+                else if (current.Type == 2)
+                    builder.Append("LP");
+                else if (current.Type == 3)
+                    builder.Append("HB");
+                else
+                    builder.Append("");
                 builder.AppendLine();
             }
 

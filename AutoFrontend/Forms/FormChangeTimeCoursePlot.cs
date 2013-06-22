@@ -1,79 +1,115 @@
 using System;
-using System.Drawing;
-using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace AutoFrontend.Forms
 {
-	/// <summary>
-	/// Summary description for FormChangeTimeCoursePlot.
-	/// </summary>
-	public class FormChangeTimeCoursePlot : System.Windows.Forms.Form
-	{
-		private System.Windows.Forms.Panel panel1;
-		private System.Windows.Forms.Panel panel2;
-		private System.Windows.Forms.Panel panel3;
-		private System.Windows.Forms.Button cmdCancel;
-		private System.Windows.Forms.Button cmdOK;
-		private System.Windows.Forms.Panel panel4;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.ComboBox cmbXAxis;
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container components = null;
+    /// <summary>
+    ///     Summary description for FormChangeTimeCoursePlot.
+    /// </summary>
+    public class FormChangeTimeCoursePlot : Form
+    {
+        private static FormChangeTimeCoursePlot _Instance;
+
+        /// <summary>
+        ///     Required designer variable.
+        /// </summary>
+        private readonly Container components = null;
+
         private CheckBox chkAntiAlias;
+        private ComboBox cmbXAxis;
+        private Button cmdCancel;
+        private Button cmdOK;
+        private GroupBox groupBox1;
+        private Panel panel1;
+        private Panel panel2;
+        private Panel panel3;
+        private Panel panel4;
 
-		static FormChangeTimeCoursePlot _Instance = null;
-		public static FormChangeTimeCoursePlot Instance
-		{
-			get
-			{
-				if (_Instance == null) _Instance = new FormChangeTimeCoursePlot();
-				return _Instance;
-			}
-			set
-			{
-				_Instance = value;
-			}
-		}
+        private FormChangeTimeCoursePlot()
+        {
+            //
+            // Required for Windows Form Designer support
+            //
+            InitializeComponent();
 
-		private FormChangeTimeCoursePlot()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
+            //
+            // TODO: Add any constructor code after InitializeComponent call
+            //
+        }
 
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
-		}
+        public static FormChangeTimeCoursePlot Instance
+        {
+            get
+            {
+                if (_Instance == null) _Instance = new FormChangeTimeCoursePlot();
+                return _Instance;
+            }
+            set { _Instance = value; }
+        }
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if(components != null)
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
+        public bool IsAntiAlias
+        {
+            get { return chkAntiAlias.Checked; }
+            set { chkAntiAlias.Checked = value; }
+        }
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormChangeTimeCoursePlot));
+        public object[] XAxisValues
+        {
+            get
+            {
+                var oResult = new object[cmbXAxis.Items.Count];
+                cmbXAxis.Items.CopyTo(oResult, 0);
+                return oResult;
+            }
+            set
+            {
+                cmbXAxis.Items.Clear();
+                cmbXAxis.Items.AddRange(value);
+                cmbXAxis.SelectedIndex = 0;
+            }
+        }
+
+        public int SelectedIndex
+        {
+            get { return cmbXAxis.SelectedIndex; }
+            set { cmbXAxis.SelectedIndex = value; }
+        }
+
+        /// <summary>
+        ///     Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
+
+        private void FormChangeTimeCoursePlot_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+        }
+
+        private void cmdOK_Click(object sender, EventArgs e)
+        {
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        ///     Required method for Designer support - do not modify
+        ///     the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof (FormChangeTimeCoursePlot));
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.chkAntiAlias = new System.Windows.Forms.CheckBox();
@@ -114,8 +150,10 @@ namespace AutoFrontend.Forms
             // 
             // chkAntiAlias
             // 
-            this.chkAntiAlias.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkAntiAlias.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                   | System.Windows.Forms.AnchorStyles.Right)));
             this.chkAntiAlias.AutoSize = true;
             this.chkAntiAlias.Checked = true;
             this.chkAntiAlias.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -167,7 +205,9 @@ namespace AutoFrontend.Forms
             // 
             // cmdOK
             // 
-            this.cmdOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdOK.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmdOK.Location = new System.Drawing.Point(121, 5);
@@ -179,7 +219,9 @@ namespace AutoFrontend.Forms
             // 
             // cmdCancel
             // 
-            this.cmdCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdCancel.Anchor =
+                ((System.Windows.Forms.AnchorStyles)
+                 ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmdCancel.Location = new System.Drawing.Point(201, 5);
@@ -197,7 +239,7 @@ namespace AutoFrontend.Forms
             this.Controls.Add(this.panel1);
             try
             {
-                this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+                this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             }
             catch
             {
@@ -213,53 +255,8 @@ namespace AutoFrontend.Forms
             this.groupBox1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
-
-		}
-		#endregion
-
-		private void cmdOK_Click(object sender, System.EventArgs e)
-		{
-		
-		}
-        
-        public bool IsAntiAlias
-        {
-            get { return chkAntiAlias.Checked; }
-            set { chkAntiAlias.Checked = value; }
         }
 
-		public object[] XAxisValues
-		{
-			get 
-			{	
-				object[] oResult = new object[cmbXAxis.Items.Count];
-				cmbXAxis.Items.CopyTo(oResult, 0);
-				return oResult;
-			}
-			set 
-			{ 
-				cmbXAxis.Items.Clear();
-				cmbXAxis.Items.AddRange( value );	
-				cmbXAxis.SelectedIndex = 0;
-			}
-		}
-
-		public int SelectedIndex 
-		{
-			get
-			{
-				return cmbXAxis.SelectedIndex;
-			}
-			set
-			{
-				cmbXAxis.SelectedIndex = value;
-			}
-		}
-
-		private void FormChangeTimeCoursePlot_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			e.Cancel = true;
-			this.Hide();
-		}
-	}
+        #endregion
+    }
 }

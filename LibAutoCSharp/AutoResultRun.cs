@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 
@@ -47,18 +48,17 @@ namespace LibAutoCSharp
                 _Data = value;
             }
         }
-        public ArrayList DataSeries
+        public List<double[]> DataSeries
         {
             get
             {
-                ArrayList oSeries = new ArrayList();
-                //List<double[]> oSeries = new List<double[]>();
-                double[] oParSeries = new double[Data.Count];
+                var oSeries = new List<double[]>();
+                var oParSeries = new double[Data.Count];
 
                 if (Data.Count > 0)
                 {
 
-                    double[][] oVariableSeries = new double[Data[0].NumVariables][];
+                    var oVariableSeries = new double[Data[0].NumVariables][];
 
                     for (int j = 0; j < oVariableSeries.Length; j++)
                         oVariableSeries[j] = new double[Data.Count];
